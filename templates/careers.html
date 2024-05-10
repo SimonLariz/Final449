@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Careers</title>
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/vuetify@2.5.0/dist/vuetify.min.css">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='css/styles.css') }}">
+    </head>
+    <body>
+        <div id="app" v-cloak>
+            <v-app>
+                <v-main>
+                    <v-container>
+                        <v-row justify="center">
+                            <v-col cols="12" sm="8" md="6">
+                                <v-card dark>
+                                    <v-card-title>
+                                        <h1>Careers</h1>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <p>Submit your resume to apply for a job
+                                            at our company.</p>
+                                        <p>Accepted file formats: PDF, DOC,
+                                            DOCX</p>
+                                        <p>Maximum file size: 2 MB</p>
+                                        <v-divider></v-divider>
+                                        <v-form @submit.prevent="submitForm"
+                                            ref="form">
+                                            <v-file-input
+                                                dark
+                                                label="Select Resume"
+                                                name="resume"
+                                                accept=".pdf,.doc,.docx"
+                                                v-model="resumeFile"
+                                                :rules="resumeRules"></v-file-input>
+                                            <v-btn type="submit" color="primary"
+                                                :disabled="!isFormValid">Submit
+                                                Resume</v-btn>
+                                        </v-form>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-main>
+            </v-app>
+        </div>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/vuetify@2.5.0/dist/vuetify.js"></script>
+        <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify({
+                theme: {
+                    dark: true,
+                },
+            }),
+            data() {
+                return {
+                    resumeFile: null,
+                    resumeRules: [
+                        value => !!value || 'Resume is required',
+                        value => !value || value.size < 2000000 || 'Resume size should be less than 2 MB',
+                    ],
+                };
+            },
+            computed: {
+                isFormValid() {
+                    return this.resumeFile !== null;
+                },
+            },
+            methods: {
+                submitForm() {
+                    if (this.$refs.form.validate()) {
+                        // Create a new FormData instance
+                        const formData = new FormData();
+                        formData.append('resume', this.resumeFile);
+
+                        // Submit the form data to the server
+                        fetch("{{ url_for('careers') }}", {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => {
+                            // Handle the response from the server
+                            if (response.ok) {
+                                alert('Resume submitted successfully');
+                                this.$refs.form.reset();
+                            } else {
+                                alert('Error submitting resume');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error submitting resume');
+                        });
+                    }
+                },
+            },
+        });
+    </script>
+    </body>
+</html>
