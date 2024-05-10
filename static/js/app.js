@@ -1,29 +1,34 @@
-// Function to fetch tasks from the server
-async function fetchTasks() {
+async function getTasks() {
     try {
-        const response = await fetch('/api/tasks');
+        const response = await fetch('/api/tasks', {
+            method: 'GET',
+            credentials: 'same-origin',
+        });
+
         if (response.ok) {
-            const tasks = await response.json();
-            renderTasks(tasks);
+            const data = await response.json();
+            const tasks = data.tasks;
+            const taskList = document.getElementById('taskList');
+
+            // Clear existing task items
+            taskList.innerHTML = '';
+
+            // Add each task as a list item
+            tasks.forEach((task) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${task.title} - ${task.description} - Due: ${task.due_date}`;
+                taskList.appendChild(listItem);
+            });
         } else {
-            console.error('Failed to fetch tasks:', response.statusText);
+            // Handle error case
+            console.error('Error retrieving tasks');
         }
     } catch (error) {
         console.error('Error:', error);
     }
 }
 
-// Function to render tasks
-function renderTasks(tasks) {
-    const tasksList = document.getElementById('tasks-list');
-    tasksList.innerHTML = '';
-    tasks.forEach(task => {
-        const taskElement = document.createElement('li');
-        taskElement.textContent = task.name;
-        console.log(task.name);
-        tasksList.appendChild(taskElement);
-    });
-}
 
-// Call the fetchTasks function when the page loads
-document.addEventListener('DOMContentLoaded', fetchTasks);
+document.addEventListener('DOMContentLoaded', () => {
+    getTasks();
+});

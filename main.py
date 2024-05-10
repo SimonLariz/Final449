@@ -98,7 +98,7 @@ def create_task():
         "user_id": user_id,
         "title": title,
         "description": description,
-        "due_date": datetime.strptime(due_date, "%Y-%m-%d"),
+        "due_date": due_date,
     }
 
     mongo.db.tasks.insert_one(task)
